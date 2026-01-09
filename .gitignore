@@ -1,0 +1,26 @@
+# Common
+node_modules/
+.DS_Store
+*.log
+.env
+.env.local
+
+# Server
+server/node_modules/
+server/.env
+server/tmp/
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Client
+client/node_modules/
+client/dist/
+client/.env
+client/*.local
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.sln
+*.sw?

@@ -50,9 +50,7 @@ const authSlice = createSlice({
     },
 
     authError: (state) => {
-      localStorage.removeItem('token');
-      state.token = null;
-      state.user = null;
+
       state.isAuthenticated = false;
       state.loading = false;
       state.isLoaded = true;

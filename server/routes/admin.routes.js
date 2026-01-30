@@ -7,7 +7,10 @@ const {
     getActivityLogs,
     getAllUsers,
     updateUserRole,
-    getAllCoursesAdmin
+    getAllCoursesAdmin,
+    getModerationActivity,
+    getPaymentStats,
+    getPaymentTransactions
 } = require('../controllers/admin.controller');
 
 // Block all routes in this file for non-admins
@@ -16,6 +19,11 @@ router.use(auth, requireAdmin);
 // Stats & Logs
 router.get('/stats', getDashboardStats);
 router.get('/logs', getActivityLogs);
+router.get('/moderation-activity', getModerationActivity);
+
+// Payments
+router.get('/payments/stats', getPaymentStats);
+router.get('/payments/transactions', getPaymentTransactions);
 
 // User Management
 router.get('/users', getAllUsers);

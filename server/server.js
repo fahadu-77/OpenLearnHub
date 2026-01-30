@@ -28,7 +28,6 @@ app.use('/api/lessons', require('./routes/lesson.routes'));
 app.use('/api/payment', require('./routes/payment.routes'));
 app.use('/api/progress', require('./routes/progress.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
-app.use('/api/answers', require('./routes/answer.routes'));
 
 
 app.get('/', (req, res) => {

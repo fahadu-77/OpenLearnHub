@@ -30,7 +30,7 @@ const CategoryCoursesPage = () => {
             </div>
         );
     }
-
+console.log(courses,error);
     if (error || !courses) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -123,7 +123,7 @@ const CategoryCoursesPage = () => {
                                 <Filter className="w-8 h-8 text-gray-300" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                No {activeType === 'premium' ? 'premium' : 'YouTube'} courses found
+                                No  courses found
                             </h3>
                             <p className="text-gray-500 mb-6 text-sm">
                                 Explore the other tab or check back later!

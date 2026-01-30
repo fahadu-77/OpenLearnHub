@@ -1,68 +1,99 @@
-import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../slices/authSlice';
 import api from '../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+
+const LoginSchema = Yup.object({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 const LoginPage = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const { email, password } = formData;
+  // Optional: support redirect after login (used by checkout flow later)
+  const redirectTo = location.state?.redirectTo || '/';
 
-    const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  return (
+    <div className="flex justify-center items-center h-[80vh]">
+      <div className="w-full max-w-md bg-white p-8 rounded shadow-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await api.post('/auth/login', { email, password });
-            dispatch(loginSuccess(res.data));
-            if (res.data.user.role === 'admin') {
+        <Formik
+          initialValues={{ email: '', password: '' }}
+          validationSchema={LoginSchema}
+          onSubmit={async (values, { setSubmitting, setStatus }) => {
+            try {
+              const res = await api.post('/auth/login', values);
+              dispatch(loginSuccess(res.data));
+
+              if (res.data.user?.role === 'admin') {
                 navigate('/admin/dashboard');
-            } else {
-                navigate('/');
+              } else {
+                navigate(redirectTo);
+              }
+            } catch (err) {
+              setStatus(err.response?.data?.msg || 'Login failed');
+            } finally {
+              setSubmitting(false);
             }
-        } catch (err) {
-            console.error(err.response?.data?.msg || 'Login failed');
-            alert(err.response?.data?.msg || 'Login failed');
-        }
-    };
+          }}
+        >
+          {({ isSubmitting, status }) => (
+            <Form className="space-y-4">
+              <div>
+                <label className="block text-gray-700">Email</label>
+                <Field
+                  type="email"
+                  name="email"
+                  className="w-full p-2 border rounded mt-1"
+                />
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="text-sm text-red-600 mt-1"
+                />
+              </div>
 
-    return (
-        <div className="flex justify-center items-center h-[80vh]">
-            <div className="w-full max-w-md bg-white p-8 rounded shadow-md">
-                <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-                <form onSubmit={onSubmit}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={email}
-                            onChange={onChange}
-                            className="w-full p-2 border rounded mt-1"
-                            required
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block text-gray-700">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={password}
-                            onChange={onChange}
-                            className="w-full p-2 border rounded mt-1"
-                            required
-                        />
-                    </div>
-                    <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-                        Login
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
+              <div>
+                <label className="block text-gray-700">Password</label>
+                <Field
+                  type="password"
+                  name="password"
+                  className="w-full p-2 border rounded mt-1"
+                />
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="text-sm text-red-600 mt-1"
+                />
+              </div>
+
+              {status && (
+                <div className="text-sm text-red-600 font-medium">
+                  {status}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Logging in…' : 'Login'}
+              </button>
+            </Form>
+          )}
+        </Formik>
+      </div>
+    </div>
+  );
 };
 
 export default LoginPage;

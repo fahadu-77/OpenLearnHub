@@ -2,7 +2,7 @@ import axios from 'axios';
 import store from '../store/store';
 
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api',
+    baseURL: 'https://openlearnhub.onrender.com/api',
     headers: {
         'Content-Type': 'application/json',
     },

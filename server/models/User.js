@@ -25,7 +25,14 @@ const userSchema = new mongoose.Schema({
     }],
     learningProgress: [{
         course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-        completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+        lessons: [{
+            lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },
+            videoCompleted: { type: Boolean, default: false },
+            notesViewed: { type: Boolean, default: false },
+            questionsAnswered: { type: Boolean, default: false },
+            aiFeedbackGenerated: { type: Boolean, default: false },
+            lessonCompleted: { type: Boolean, default: false },
+        }],
         lastWatched: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }
     }],
     learningHours: {

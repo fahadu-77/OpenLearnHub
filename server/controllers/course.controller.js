@@ -43,6 +43,7 @@ exports.createChannel = async (req, res) => {
 
 exports.getAllCourses = async (req, res) => {
     try {
+      
         const { category, instructor } = req.query;
 
         const filter = {};
@@ -90,6 +91,7 @@ exports.getCourseById = async (req, res) => {
             .populate('lessons');
 
         if (!course) {
+            console.log("Course not found for ID:", req.params.id);
             return res.status(404).json({ msg: 'Course not found' });
         }
 

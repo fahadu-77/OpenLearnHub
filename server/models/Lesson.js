@@ -46,39 +46,64 @@ const lessonSchema = new mongoose.Schema(
       required: true,
     },
 
+    
+
     // ─────────────────────────
-    // DESCRIPTIVE QUESTIONS (MANUAL)
+    // AI ENHANCEMENTS (GROQ)
     // ─────────────────────────
-    questions: [
+    transcript: {
+      type: String,
+      default: "",
+    },
+    transcriptStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
+    aiNotes: {
+      type: String, // MarkDown/JSON structured notes
+      default: "",
+    },
+
+    aiQuestions: [
       {
-        question: {
-          type: String,
-          required: true,
-        },
-
-        expectedKeywords: {
-          type: [String], // used by manual evaluator
-          default: [],
-        },
-
-        difficulty: {
-          type: String,
-          enum: ["easy", "medium", "hard"],
-        },
-
-        topic: {
-          type: String, // instructor-provided topic
-        },
+        question: String,
+        expectedKeywords: [String],
       },
     ],
+    aiQuestionStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
 
     // ─────────────────────────
     // LIFECYCLE
     // ─────────────────────────
     status: {
       type: String,
-      enum: ["draft", "ready", "published"],
+      enum: ["draft", "ready", "published", "pending_review", "rejected", "processing", "flagged", "blocked","approved"],
       default: "draft",
+    },
+
+    instructorFeedback: {
+    message: String,
+    categories: [String],
+    createdAt: Date
+},
+
+
+    // ─────────────────────────
+    // CONTENT MODERATION
+    // ─────────────────────────
+    moderationResult: {
+      risk_level: {
+        type: String,
+        enum: ["LOW", "MEDIUM", "HIGH","RESOLVED"],
+        default: "LOW",
+      },
+      detected_categories: [String],
+      short_reason: String,
     },
   },
   { timestamps: true }

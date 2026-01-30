@@ -11,6 +11,9 @@ const auth = require('../middleware/auth');
  * This is used by both the webhook and the manual verification endpoint.
  */
 const fulfillOrder = async (session) => {
+//   console.log('[WEBHOOK] session metadata:', session.metadata);
+// console.log('[WEBHOOK] client_reference_id:', session.client_reference_id);
+
   const userId = session.metadata.userId || session.client_reference_id;
   const courseId = session.metadata.courseId;
   const amount = session.amount_total / 100;
@@ -35,6 +38,12 @@ const fulfillOrder = async (session) => {
     console.log(`[fulfillment] Payment recorded: ${payment._id}`);
   }
 
+  const course = await Course.findById(courseId);
+if (!course) {
+  throw new Error(`Course not found: ${courseId}`);
+}
+
+
   // 2. Enroll User (Idempotent)
   const user = await User.findById(userId);
   if (user) {
@@ -54,6 +63,16 @@ const fulfillOrder = async (session) => {
       }
 
       await user.save();
+
+      const alreadyInCourse = course.enrolledStudents?.some(
+      id => id.toString() === userId
+    );
+
+    if (!alreadyInCourse) {
+      course.enrolledStudents.push(userId);
+      await course.save();
+    }
+
       console.log(`[fulfillment] Success: Enrolled user ${userId} in course ${courseId}`);
       return { status: 'enrolled', user };
     } else {
@@ -87,7 +106,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/course/${courseId}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.CLIENT_URL}/course/${courseId}?success=true`,
       cancel_url: `${process.env.CLIENT_URL}/course/${courseId}?canceled=true`,
       client_reference_id: req.user.id,
       metadata: {
@@ -103,28 +122,6 @@ router.post('/create-checkout-session', auth, async (req, res) => {
   }
 });
 
-// @route   POST api/payment/verify-session
-// @access  Private
-// Synchronous fallback for enrollment if webhook is delayed or fails
-router.post('/verify-session', auth, async (req, res) => {
-  try {
-    const { sessionId } = req.body;
-    if (!sessionId) return res.status(400).json({ error: 'Session ID is required' });
-
-    console.log(`[Verify] Checking session: ${sessionId}`);
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-    if (session.payment_status === 'paid') {
-      const result = await fulfillOrder(session);
-      res.json({ success: true, ...result });
-    } else {
-      res.status(400).json({ success: false, status: session.payment_status });
-    }
-  } catch (error) {
-    console.error('Verification Error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // @route   POST api/payment/webhook
 router.post('/webhook', async (req, res) => {
@@ -152,5 +149,7 @@ router.post('/webhook', async (req, res) => {
 
   res.json({ received: true });
 });
+
+
 
 module.exports = router;

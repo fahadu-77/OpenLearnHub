@@ -3,9 +3,11 @@ const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
 
 const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    folder: 'thumbnails',
-    allowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+    cloudinary: cloudinary.v2 || cloudinary,
+    params: {
+        folder: 'thumbnails',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    },
 });
 
 const upload = multer({

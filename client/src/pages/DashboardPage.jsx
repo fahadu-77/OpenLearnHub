@@ -82,7 +82,7 @@ const DashboardPage = () => {
         const enrolledCategories = [...new Set(user.enrolledCourses.map(c => c.category))];
         const enrolledIds = user.enrolledCourses.map(c => c._id);
         const recommended = allCourses
-            .filter(c => enrolledCategories.includes(c.category) && !enrolledIds.includes(c._id))
+            .filter(c => enrolledCategories.includes(c.category) && !enrolledIds.includes(c._id)&& c.lessons?.length > 0)
             .slice(0, 4);
 
         // Learning Summary
@@ -300,7 +300,7 @@ const DashboardPage = () => {
                                 </div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-2">No courses found</h3>
                                 <p className="text-slate-500 mb-8 max-w-sm mx-auto">Start your journey by enrolling in a new channel from our curated selection.</p>
-                                <Link to="/" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                                <Link to="/#categories" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
                                     Browse Channels
                                 </Link>
                             </div>

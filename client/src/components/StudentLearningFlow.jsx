@@ -24,7 +24,7 @@ const StudentLearningFlow = ({
   const isVideoDone = lessonProgress?.videoCompleted || false;
   const isNotesDone = lessonProgress?.notesViewed || false;
   const isAssessmentDone = lessonProgress?.lessonCompleted || false;
-console.log("cousreId", courseId,selectedLesson._id);
+// console.log("cousreId", courseId,selectedLesson._id);
   return (
     <div className="space-y-6">
       {/* VIDEO SECTION TRACKING (Ghost layer if needed, but video is outside in main player) */}

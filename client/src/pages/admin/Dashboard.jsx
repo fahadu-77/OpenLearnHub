@@ -101,19 +101,14 @@ const Dashboard = () => {
             </h2>
           </div>
           <div className="divide-y divide-slate-100">
-            {activities.map((lesson) => (
+            {activities.filter((lesson) => lesson.status !== "published")
+            .map((lesson) => (
               <div
                 key={lesson._id}
                 className="p-6 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <p className="text-sm font-semibold text-slate-900">
-                      {lesson.status === "blocked"}
-                      {lesson.status === "pending_review"}
-                      {lesson.status === "rejected"}
-                      {lesson.status === "approved"}
-                    </p>
 
                     <p className="text-xs text-slate-500">
                       {lesson.title} · {lesson.course?.title}

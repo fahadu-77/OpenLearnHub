@@ -1,9 +1,6 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import { loginSuccess } from "../slices/authSlice";
-import { useLocation } from "react-router-dom";
 import {
   Play,
   Lock,
@@ -37,10 +34,6 @@ const createCheckoutSession = async (courseId) => {
 /* -------------------- COMPONENT -------------------- */
 
 const CourseDetailsPage = () => {
-  console.log("📍 COURSE PAGE MOUNTED - Token:", localStorage.getItem("token"));
-  console.log("📍 URL:", window.location.href);
-  console.log("📍 Search params:", window.location.search);
-  const dispatch = useDispatch();
   const location = useLocation();
 
   const { id } = useParams();
@@ -86,27 +79,32 @@ const CourseDetailsPage = () => {
     isAuthenticated &&
     course?.instructor &&
     (user?._id || user?.id) ===
-      (typeof course.instructor === "string"
-        ? course.instructor
-        : course.instructor._id);
+    (typeof course.instructor === "string"
+      ? course.instructor
+      : course.instructor._id);
   let selectedLesson = course?.lessons?.find((l) => l._id === selectedLessonId);
 
+  // Handle post-payment redirect - refresh enrollment status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get("success")) {
-      api.get("/auth/me").then((res) => {
-        dispatch(loginSuccess(res.data));
-      });
+    if (params.get("success") && isAuthenticated) {
+      // Auth is loaded and user is authenticated, refresh queries to show enrollment
+      queryClient.invalidateQueries(["course", id]);
+      queryClient.invalidateQueries(["progress", id]);
+
+      // Clean up URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
     }
-  }, []);
+  }, [isAuthenticated, location.search, id, queryClient]);
 
   useEffect(() => {
     if (!selectedLessonId && course?.lessons?.length > 0) {
       const visibleLessons = isInstructor
         ? course.lessons
         : course.lessons.filter(
-            (l) => l.status !== "blocked" || l.status === "rejected",
-          );
+          (l) => l.status !== "blocked" || l.status === "rejected",
+        );
 
       if (visibleLessons.length === 0) return;
 
@@ -129,19 +127,19 @@ const CourseDetailsPage = () => {
 
   const checkoutMutation = useMutation({
     mutationFn: () => {
-      console.log("🔵 BEFORE CHECKOUT - Token:", localStorage.getItem("token"));
+      // console.log("🔵 BEFORE CHECKOUT - Token:", localStorage.getItem("token"));
       return createCheckoutSession(id);
     },
     onSuccess: (data) => {
-      console.log(
-        "🟢 CHECKOUT SUCCESS - Token:",
-        localStorage.getItem("token"),
-      );
+      // console.log(
+      //   "🟢 CHECKOUT SUCCESS - Token:",
+      //   localStorage.getItem("token"),
+      // );
       if (data.url) {
-        console.log(
-          "🟡 REDIRECTING TO STRIPE - Token:",
-          localStorage.getItem("token"),
-        );
+        // console.log(
+        //   "🟡 REDIRECTING TO STRIPE - Token:",
+        //   localStorage.getItem("token"),
+        // );
         window.location.href = data.url;
       }
     },
@@ -154,7 +152,7 @@ const CourseDetailsPage = () => {
       );
       alert(
         error.response?.data?.msg ||
-          "Failed to initiate checkout. Please try again.",
+        "Failed to initiate checkout. Please try again.",
       );
     },
   });
@@ -215,32 +213,32 @@ const CourseDetailsPage = () => {
   }
 
   const enrolledCourses = user?.enrolledCourses;
-  console.log("User enrolledCourses:", enrolledCourses);
+  // console.log("User enrolledCourses:", enrolledCourses);
   const isEnrolled =
     Array.isArray(enrolledCourses) &&
     enrolledCourses.some((c) => (c._id || c).toString() === id.toString());
-  console.log("isEnrolled:", isEnrolled);
+  // console.log("isEnrolled:", isEnrolled);
   /* -------------------- UI RENDER -------------------- */
 
   if (isLoading || isProgressLoading)
     return <div className="p-8">Loading...</div>;
   if (error)
     return <div className="p-8 text-red-500">Failed to load course</div>;
-  console.log(
-    "Course ID:",
-    id,
-    "Enrolled:",
-    user?.enrolledCourses?.map((c) =>
-      typeof c === "object" ? c._id.toString() : c,
-    ),
-  );
-  console.log("selectedLessonId", selectedLessonId);
-  console.log(
-    "(isEnrolled || isInstructor) && selectedLesson )",
-    isEnrolled,
-    isInstructor,
-    selectedLesson,
-  );
+  // console.log(
+  //   "Course ID:",
+  //   id,
+  //   "Enrolled:",
+  //   user?.enrolledCourses?.map((c) =>
+  //     typeof c === "object" ? c._id.toString() : c,
+  //   ),
+  // );
+  // console.log("selectedLessonId", selectedLessonId);
+  // console.log(
+  //   "(isEnrolled || isInstructor) && selectedLesson )",
+  //   isEnrolled,
+  //   isInstructor,
+  //   selectedLesson,
+  // );
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="grid lg:grid-cols-3 gap-8">
@@ -276,7 +274,13 @@ const CourseDetailsPage = () => {
                 </h3>
                 <p>Unlock structured lessons, AI notes, and assessments.</p>
                 <button
-                  onClick={() => checkoutMutation.mutate()}
+                  onClick={() => {
+                    if (!user) {
+                      navigate("/register");
+                    } else {
+                      checkoutMutation.mutate();
+                    }
+                  }}
                   className="mt-6 bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-blue-200"
                 >
                   {!user ? "Sign up to enroll" : "Get Instant Access"}
@@ -306,11 +310,10 @@ const CourseDetailsPage = () => {
                           onClick={() =>
                             setIsPreviewingStudent(!isPreviewingStudent)
                           }
-                          className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 font-bold transition-all ${
-                            isPreviewingStudent
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
+                          className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 font-bold transition-all ${isPreviewingStudent
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-gray-100 text-gray-700"
+                            }`}
                         >
                           <Play className="w-3 h-3" />{" "}
                           {isPreviewingStudent
@@ -376,11 +379,12 @@ const CourseDetailsPage = () => {
                 .filter((lesson) =>
                   isInstructor
                     ? true
-                    : lesson.status !== "blocked" ||
-                      lesson.status === "rejected",
+                    : lesson.status !== "blocked" &&
+                    lesson.status !== "rejected",
                 )
                 .map((lesson, index) => {
-                  const isBlocked = lesson.status === "blocked";
+                  const isBlocked =
+                    lesson.status === "blocked" || lesson.status === "rejected";
                   const isSelected = selectedLesson?._id === lesson._id;
                   const isCompleted = progress?.lessons?.find(
                     (l) => l.lessonId === lesson._id,
@@ -407,20 +411,17 @@ const CourseDetailsPage = () => {
                         setIsPreviewingStudent(false);
                       }}
                       className={`w-full p-4 flex gap-4 text-left transition-colors relative
-                        ${
-                          isSelected
-                            ? "bg-blue-50/50 after:absolute after:left-0 after:top-0 after:bottom-0 after:w-1 after:bg-blue-600"
-                            : "hover:bg-gray-50"
+                        ${isSelected
+                          ? "bg-blue-50/50 after:absolute after:left-0 after:top-0 after:bottom-0 after:w-1 after:bg-blue-600"
+                          : "hover:bg-gray-50"
                         }
-                      ${
-                        isBlocked && isInstructor
+                      ${isBlocked && isInstructor
                           ? "bg-red-200 border-l-4 border-red-500"
                           : ""
-                      }
-                        ${
-                          isLocked && !isInstructor
-                            ? "opacity-40 cursor-not-allowed"
-                            : ""
+                        }
+                        ${isLocked && !isInstructor
+                          ? "opacity-40 cursor-not-allowed"
+                          : ""
                         }
                     `}
                     >
@@ -435,9 +436,8 @@ const CourseDetailsPage = () => {
                       </div>
                       <div>
                         <div
-                          className={`text-sm font-bold ${
-                            isSelected ? "text-blue-700" : "text-gray-800"
-                          }`}
+                          className={`text-sm font-bold ${isSelected ? "text-blue-700" : "text-gray-800"
+                            }`}
                         >
                           {lesson.title}
                         </div>

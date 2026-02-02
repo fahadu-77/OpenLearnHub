@@ -35,7 +35,7 @@ export const Navbar = () => {
                 {user?.role === "student" && (
                   <Link
                     to="/#categories"
-                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors focus:outline-none focus-visible:outline-none"
+                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors "
                   >
                     Browse
                   </Link>
@@ -43,7 +43,7 @@ export const Navbar = () => {
                 {user?.role !== "admin" && (
                   <Link
                     to="/create-course"
-                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors focus:outline-none focus-visible:outline-none"
+                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors "
                   >
                     Create Channel
                   </Link>
@@ -51,7 +51,7 @@ export const Navbar = () => {
                 {user?.role !== "admin" && (
                   <Link
                     to="/dashboard"
-                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors focus:outline-none focus-visible:outline-none"
+                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
                   >
                     My Learning
                   </Link>

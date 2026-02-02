@@ -26,13 +26,15 @@ const InstructorDashboard = () => {
 
   // Fetch Instructor's Courses
   const { data: courses, isLoading: coursesLoading } = useQuery({
-    queryKey: ["instructorCourses", user?._id],
+    queryKey: ["instructorCourses", user?._id || user?.id],
     queryFn: async () => {
-      const res = await api.get(`/courses?instructor=${user?._id}`);
+      const res = await api.get(`/courses?instructor=${user?._id || user?.id}`);
       return res.data;
     },
-    enabled: !!user?._id,
+    enabled: !!(user?._id || user?.id),
   });
+
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["instructor-lesson-processing"],
@@ -55,7 +57,7 @@ const InstructorDashboard = () => {
   console.log("courses", courses, totalRevenue, totalEnrollments, totalCourses);
   // Derived from lessons status
   const pendingReviews =
-  data?.filter(lesson => lesson.status === 'pending_review' || lesson.status === 'blocked').length || 0;
+    data?.filter(lesson => lesson.status === 'pending_review' || lesson.status === 'blocked').length || 0;
 
   console.log("pendingReviews", pendingReviews, courses);
   // Stat Cards Configuration
@@ -225,10 +227,10 @@ const InstructorDashboard = () => {
                       {course.lessons?.some(
                         (l) => l.status === "pending_review",
                       ) && (
-                        <span className="animate-pulse text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
-                          Review Required
-                        </span>
-                      )}
+                          <span className="animate-pulse text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                            Review Required
+                          </span>
+                        )}
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight">
                       {course.title}
@@ -353,7 +355,7 @@ const InstructorDashboard = () => {
                           lesson.moderationResult?.short_reason}
                         {lesson.status === "pending_review" &&
                           "Awaiting moderator review."}
-                        {lesson.status === "approved" && "Flagged to admin"}
+                        {lesson.status === "approved" && "Admin approved."}
                         {lesson.status === "blocked" &&
                           "Blocked due to policy violation."}
                       </span>

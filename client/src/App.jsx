@@ -4,7 +4,7 @@ import { ProtectedRoutes } from './components/ProtectedRoutes';
 
 function App() {
  useEffect(() => {
-    console.log('🏁 APP MOUNTED - Token:', localStorage.getItem('token'));
+    // console.log('🏁 APP MOUNTED - Token:', localStorage.getItem('token'));
     
     // Listen for storage changes
     const handleStorageChange = (e) => {

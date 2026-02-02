@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 const LoginSchema = Yup.object({
   email: Yup.string()
-    .email('Invalid email address')
+    // .email('Invalid email address') // easy
     .required('Email is required'),
   password: Yup.string().required('Password is required'),
 });
@@ -50,7 +50,7 @@ const LoginPage = () => {
               <div>
                 <label className="block text-gray-700">Email</label>
                 <Field
-                  type="email"
+                  // type="email" //easy
                   name="email"
                   className="w-full p-2 border rounded mt-1"
                 />

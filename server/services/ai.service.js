@@ -114,8 +114,8 @@ exports.processLessonAISync = async (lessonId) => {
 
     // Step B: Transcript Generation (Groq Whisper)
     console.log(`[AI-SERVICE] Generating transcript...`);
-    // const transcript = await generateTranscript(audioPath);
-    const transcript = "harassmment content here";
+    const transcript = await generateTranscript(audioPath);
+    // const transcript = "harassmment content here";
     // ⚠️ Use your real function here
 
     // Clean up audio file

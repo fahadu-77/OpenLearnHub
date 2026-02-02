@@ -43,7 +43,7 @@ exports.createChannel = async (req, res) => {
 
 exports.getAllCourses = async (req, res) => {
     try {
-      
+
         const { category, instructor } = req.query;
 
         const filter = {};

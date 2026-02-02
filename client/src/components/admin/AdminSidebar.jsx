@@ -58,16 +58,6 @@ const AdminSidebar = ({ isCollapsed, setIsCollapsed }) => {
                     </NavLink>
                 ))}
             </nav>
-
-            <div className="p-4 border-t border-slate-100">
-                <NavLink
-                    to="/"
-                    className="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-200 group"
-                >
-                    <LogOut size={20} className={isCollapsed ? 'mx-auto' : ''} />
-                    {!isCollapsed && <span>Exit Admin</span>}
-                </NavLink>
-            </div>
         </aside>
     );
 };

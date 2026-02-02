@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { updateUser } from '../slices/authSlice';
 import api from '../utils/api';
 
 const CATEGORIES = ['Development', 'Design', 'Business', 'Marketing', 'IT & Software', 'Personal Development', 'Photography', 'Music'];
@@ -22,6 +24,7 @@ const CreateCoursePage = () => {
     const [thumbnailFile, setThumbnailFile] = useState(null);
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
@@ -29,6 +32,7 @@ const CreateCoursePage = () => {
         onSuccess: () => {
             queryClient.invalidateQueries(['courses']);
             queryClient.invalidateQueries(['createdCourses']);
+            dispatch(updateUser({ role: 'instructor' }));
             navigate('/');
         },
         onError: (err) => {

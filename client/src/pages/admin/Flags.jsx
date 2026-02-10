@@ -20,7 +20,6 @@ const Flags = () => {
         l.moderationResult?.risk_level === 'MEDIUM' ||
         l.status === 'pending_review' || l.status === 'blocked'
     ) || [];
-    console.log("flaggedLessons", flaggedLessons);
 
     const reviewMutation = useMutation({
         mutationFn: async ({ id, action }) => {
@@ -49,7 +48,7 @@ const Flags = () => {
             </div>
         );
     }
-    console.log("Rendering Flags with", flaggedLessons);
+
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

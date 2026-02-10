@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const { createChannel, getAllCourses, getCourseById, enrollChannel } = require('../controllers/course.controller');
+const { createChannel, getAllCourses, getCourseById, enrollChannel, deleteCourse } = require('../controllers/course.controller');
 
 // @route   GET api/courses
 // @access  Public
@@ -21,8 +21,6 @@ router.post('/', auth, upload.single('thumbnail'), createChannel);
 // @route   POST api/courses/:id/enroll
 // @access  Private
 router.post('/:id/enroll', auth, enrollChannel);
-
-const { deleteCourse } = require('../controllers/course.controller');
 
 // @route   DELETE api/courses/:id
 // @access  Private (Instructor only)

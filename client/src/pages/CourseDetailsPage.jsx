@@ -83,7 +83,6 @@ const CourseDetailsPage = () => {
       ? course.instructor
       : course.instructor._id);
   let selectedLesson = course?.lessons?.find((l) => l._id === selectedLessonId);
-
   // Handle post-payment redirect - refresh enrollment status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -103,8 +102,9 @@ const CourseDetailsPage = () => {
       const visibleLessons = isInstructor
         ? course.lessons
         : course.lessons.filter(
-          (l) => l.status !== "blocked" || l.status === "rejected",
+          (l) => l.status !== "blocked" && l.status !== "rejected",
         );
+
 
       if (visibleLessons.length === 0) return;
 
@@ -127,19 +127,10 @@ const CourseDetailsPage = () => {
 
   const checkoutMutation = useMutation({
     mutationFn: () => {
-      // console.log("🔵 BEFORE CHECKOUT - Token:", localStorage.getItem("token"));
       return createCheckoutSession(id);
     },
     onSuccess: (data) => {
-      // console.log(
-      //   "🟢 CHECKOUT SUCCESS - Token:",
-      //   localStorage.getItem("token"),
-      // );
       if (data.url) {
-        // console.log(
-        //   "🟡 REDIRECTING TO STRIPE - Token:",
-        //   localStorage.getItem("token"),
-        // );
         window.location.href = data.url;
       }
     },
@@ -213,32 +204,17 @@ const CourseDetailsPage = () => {
   }
 
   const enrolledCourses = user?.enrolledCourses;
-  // console.log("User enrolledCourses:", enrolledCourses);
   const isEnrolled =
     Array.isArray(enrolledCourses) &&
     enrolledCourses.some((c) => (c._id || c).toString() === id.toString());
-  // console.log("isEnrolled:", isEnrolled);
   /* -------------------- UI RENDER -------------------- */
 
   if (isLoading || isProgressLoading)
     return <div className="p-8">Loading...</div>;
   if (error)
     return <div className="p-8 text-red-500">Failed to load course</div>;
-  // console.log(
-  //   "Course ID:",
-  //   id,
-  //   "Enrolled:",
-  //   user?.enrolledCourses?.map((c) =>
-  //     typeof c === "object" ? c._id.toString() : c,
-  //   ),
-  // );
-  // console.log("selectedLessonId", selectedLessonId);
-  // console.log(
-  //   "(isEnrolled || isInstructor) && selectedLesson )",
-  //   isEnrolled,
-  //   isInstructor,
-  //   selectedLesson,
-  // );
+  if (error)
+    return <div className="p-8 text-red-500">Failed to load course</div>;
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="grid lg:grid-cols-3 gap-8">

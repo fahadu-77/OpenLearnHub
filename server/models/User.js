@@ -35,17 +35,7 @@ const userSchema = new mongoose.Schema({
         }],
         lastWatched: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }
     }],
-    // learningHours: {
-    //     type: Number,
-    //     default: 0,
-    // },
-    // learningPoints: {
-    //     type: Number,
-    //     default: 0,
-    // },
-    // checkpointsReached: [{
-    //     type: Number,
-    // }],
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

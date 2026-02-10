@@ -41,7 +41,7 @@ exports.addLesson = async (req, res) => {
       course: courseId,
       lessonType,
       createdBy: req.user.id,
-      questions: Array.isArray(req.body.questions) ? req.body.questions : [],
+      questions: questions,
       status: "processing", // ⭐ NEW: Mark as processing
     });
 
@@ -49,16 +49,12 @@ exports.addLesson = async (req, res) => {
 
     // ⭐ NEW: Run AI processing and wait for moderation
     if (lesson.lessonType === "uploaded") {
-      console.log("🔍 Running AI moderation before publishing...");
-
       try {
         // Wait for AI processing to complete
         const aiResult = await aiService.processLessonAISync(lesson._id);
 
         // Check moderation result
         if (aiResult.status === "blocked") {
-          console.log("🚫 HIGH RISK content detected - Upload blocked!");
-
           // Add to course so instructor sees the feedback in their dashboard
           course.lessons.push(lesson._id);
           await course.save();
@@ -76,10 +72,8 @@ exports.addLesson = async (req, res) => {
           aiResult.moderation.risk_level === "MEDIUM"
         ) {
           lesson.status = "flagged"; // ⭐ Mark for review
-          console.log("⚠️ MEDIUM RISK - Lesson flagged for review");
         } else {
           lesson.status = "published"; // ⭐ Safe to publish
-          console.log("✅ LOW RISK - Lesson approved");
         }
 
         await lesson.save();
@@ -240,8 +234,6 @@ exports.evaluateAnswer = async (req, res) => {
  * GET SINGLE LESSON (with GATING)
  */
 exports.getLessonById = async (req, res) => {
-  console.log("🎯 getLessonById HIT!"); // Add this FIRST
-
   try {
     const lessonId = req.params.id;
 
@@ -256,20 +248,15 @@ exports.getLessonById = async (req, res) => {
       lesson.course.instructor.toString() === userId ||
       req.user.role === "admin";
     const isEnrolled = user.enrolledCourses.includes(lesson.course._id);
-   
-    if (!isInstructor && !isEnrolled) {
-      console.log("⛔ BLOCKED - Not authorized");
 
+    if (!isInstructor && !isEnrolled) {
       return res
         .status(403)
         .json({ msg: "Not authorized. Enrollment required." });
     }
-    console.log("✅ Passed authorization check");
 
     // GATING LOGIC
     if (!isInstructor) {
-      console.log("🔒 Entering gating logic");
-
       const course = lesson.course;
       const lessonIndex = course.lessons.indexOf(lesson._id);
 
@@ -336,18 +323,16 @@ exports.getNextLesson = async (req, res) => {
 
     const lessonIndex = lesson.course.lessons.indexOf(lesson._id);
     const nextLessonId = lesson.course.lessons[lessonIndex + 1];
-    const nextLesson = await Lesson.findById(nextLessonId);
     if (!nextLessonId) {
       return res.status(404).json({ msg: "No more lessons in this course." });
     }
-
+    const nextLesson = await Lesson.findById(nextLessonId);
+    if (!nextLesson) {
+      return res.status(404).json({ msg: "Next lesson not found." });
+    }
     if (nextLesson.status === "blocked") {
       return res.status(403).json({ msg: "Next lesson is blocked." });
     }
-
-    // if (nextLesson.status !== "published") {
-    //   return res.status(403).json({ msg: "Next lesson is not available yet." });
-    // }
 
     res.json(nextLesson);
   } catch (err) {
@@ -383,7 +368,6 @@ exports.getLessonsByCourse = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
 
 /**
  * DELETE LESSON
@@ -442,7 +426,6 @@ exports.reviewLesson = async (req, res) => {
     if (action === "approve") {
       lesson.status = "approved";
       lesson.moderationResult.risk_level = "RESOLVED";
-      // lesson.instructorFeedback = null;
     } else if (action === "reject") {
       lesson.status = "rejected";
     } else {
@@ -463,22 +446,22 @@ exports.getInstructorLessonProcessing = async (req, res, next) => {
   try {
     const lessons = await Lesson.find({
       createdBy: req.user.id,
-      status: { $in: ['pending_review', 'rejected', 'approved', 'blocked'] }
+      status: { $in: ["pending_review", "rejected", "approved", "blocked"] },
     })
       .sort({ updatedAt: -1 })
       .limit(10)
-      .populate('course', 'title')
-      .select('title status moderationResult updatedAt course');
+      .populate("course", "title")
+      .select("title status moderationResult updatedAt course");
 
     res.json({
-      lessons: lessons.map(l => ({
+      lessons: lessons.map((l) => ({
         id: l._id,
         title: l.title,
-        courseTitle: l.course?.title || 'Unknown',
+        courseTitle: l.course?.title || "Unknown",
         status: l.status,
         moderationResult: l.moderationResult,
-        updatedAt: l.updatedAt
-      }))
+        updatedAt: l.updatedAt,
+      })),
     });
   } catch (err) {
     next(err);

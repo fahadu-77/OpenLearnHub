@@ -24,7 +24,6 @@ const StudentLearningFlow = ({
   const isVideoDone = lessonProgress?.videoCompleted || false;
   const isNotesDone = lessonProgress?.notesViewed || false;
   const isAssessmentDone = lessonProgress?.lessonCompleted || false;
-// console.log("cousreId", courseId,selectedLesson._id);
   return (
     <div className="space-y-6">
       {/* VIDEO SECTION TRACKING (Ghost layer if needed, but video is outside in main player) */}
@@ -77,7 +76,7 @@ const StudentLearningFlow = ({
 
         {isVideoDone || isInstructor ? (
           selectedLesson.questions?.length > 0 ||
-          selectedLesson.aiQuestions?.length > 0 ? (
+            selectedLesson.aiQuestions?.length > 0 ? (
             <StudentQuestions
               lessonId={selectedLesson._id}
               questions={
@@ -121,11 +120,10 @@ const StudentLearningFlow = ({
           onClick={handleNextLesson}
           disabled={!isAssessmentDone && !isInstructor}
           className={`flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-all shadow-xl
-                        ${
-                          isAssessmentDone || isInstructor
-                            ? "bg-gray-900 text-white hover:bg-black shadow-gray-200"
-                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        }
+                        ${isAssessmentDone || isInstructor
+              ? "bg-gray-900 text-white hover:bg-black shadow-gray-200"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            }
                     `}
         >
           {isAssessmentDone || isInstructor

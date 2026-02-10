@@ -19,7 +19,6 @@ exports.updateProgress = async (req, res) => {
         }
 
         let progressEntry = user.learningProgress.find(p => p.course.toString() === courseId);
-console.log("progress entry: of course, lesson ",progressEntry, courseId, lessonId);
         if (!progressEntry) {
             progressEntry = { course: courseId, lessons: [], lastWatched: lessonId };
             user.learningProgress.push(progressEntry);
@@ -132,10 +131,10 @@ exports.markQuestionsComplete = async (req, res) => {
         if (!progressEntry) return res.status(404).json({ msg: "Progress not found" });
 
         let lessonProgress = progressEntry.lessons.find(l => l.lessonId.toString() === lessonId);
-        
+
         if (!lessonProgress) {
-            progressEntry.lessons.push({ 
-                lessonId, 
+            progressEntry.lessons.push({
+                lessonId,
                 questionsAnswered: true,
                 lessonCompleted: true
             });

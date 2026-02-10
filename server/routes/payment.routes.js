@@ -11,8 +11,7 @@ const auth = require('../middleware/auth');
  * This is used by both the webhook and the manual verification endpoint.
  */
 const fulfillOrder = async (session) => {
-//   console.log('[WEBHOOK] session metadata:', session.metadata);
-// console.log('[WEBHOOK] client_reference_id:', session.client_reference_id);
+
 
   const userId = session.metadata.userId || session.client_reference_id;
   const courseId = session.metadata.courseId;
@@ -35,54 +34,60 @@ const fulfillOrder = async (session) => {
       status: 'completed'
     });
     await payment.save();
-    console.log(`[fulfillment] Payment recorded: ${payment._id}`);
   }
 
   const course = await Course.findById(courseId);
-if (!course) {
-  throw new Error(`Course not found: ${courseId}`);
-}
+  if (!course) {
+    throw new Error(`Course not found: ${courseId}`);
+  }
 
 
   // 2. Enroll User (Idempotent)
   const user = await User.findById(userId);
-  if (user) {
-    const isAlreadyEnrolled = user.enrolledCourses.some(id => id.toString() === courseId);
-    if (!isAlreadyEnrolled) {
-      user.enrolledCourses.push(courseId);
 
-      // Initialize progress tracking
-      if (!user.learningProgress) user.learningProgress = [];
-      const hasProgress = user.learningProgress.some(p => p.course.toString() === courseId);
-      if (!hasProgress) {
-        user.learningProgress.push({
-          course: courseId,
-          completedLessons: [],
-          lastWatched: null
-        });
-      }
-
-      await user.save();
-
-      const alreadyInCourse = course.enrolledStudents?.some(
-      id => id.toString() === userId
-    );
-
-    if (!alreadyInCourse) {
-      course.enrolledStudents.push(userId);
-      await course.save();
-    }
-
-      console.log(`[fulfillment] Success: Enrolled user ${userId} in course ${courseId}`);
-      return { status: 'enrolled', user };
-    } else {
-      console.log(`[fulfillment] User ${userId} already enrolled`);
-      return { status: 'already_enrolled', user };
-    }
-  } else {
+  if (!user) {
     throw new Error(`User not found: ${userId}`);
   }
-};
+
+  const isAlreadyEnrolled = user.enrolledCourses.some(
+    id => id.toString() === courseId
+  );
+
+  if (isAlreadyEnrolled) {
+    return { status: 'already_enrolled', user };
+  }
+
+  // Enroll user in course
+  user.enrolledCourses.push(courseId);
+
+  // Initialize progress tracking
+  if (!user.learningProgress) user.learningProgress = [];
+  const hasProgress = user.learningProgress.some(
+    p => p.course.toString() === courseId
+  );
+
+  if (!hasProgress) {
+    user.learningProgress.push({
+      course: courseId,
+      completedLessons: [],
+      lastWatched: null
+    });
+  }
+
+  await user.save();
+
+  // Add user to course's enrolled students
+  const alreadyInCourse = course.enrolledStudents?.some(
+    id => id.toString() === userId
+  );
+
+  if (!alreadyInCourse) {
+    course.enrolledStudents.push(userId);
+    await course.save();
+  }
+
+  return { status: 'enrolled', user };
+}
 
 // @route   POST api/payment/create-checkout-session
 router.post('/create-checkout-session', auth, async (req, res) => {

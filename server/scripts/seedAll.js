@@ -26,17 +26,7 @@ async function connectDB() {
   console.log('✅ DB connected');
 }
 
-// async function createAdmin() {
-//   const admin = await User.create({
-//     name: 'Admin',
-//     email: 'admin@test.com',
-//     role: 'admin',
-//     password: await bcrypt.hash('admin123', 10),
-//     isVerified: true,
-//   });
 
-//   return admin;
-// }
 
 async function createInstructors() {
   const instructors = [];

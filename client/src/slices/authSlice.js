@@ -20,7 +20,6 @@ const initialState = {
   loading: true,            // ✅ auth is async
   isLoaded: false,          // 🔄 tracks if loadUser has run
 };
-console.log('Initial token on load:', token); // Add this
 
 const authSlice = createSlice({
   name: 'auth',
@@ -43,7 +42,6 @@ const authSlice = createSlice({
     },
 
     logout: (state) => {
-        console.log('LOGOUT CALLED'); // Add this
 
       localStorage.removeItem('token');
       state.token = null;
@@ -53,7 +51,6 @@ const authSlice = createSlice({
     },
 
     authError: (state) => {
-console.log('authError triggered'); // Add this
       state.isAuthenticated = false;
       state.loading = false;
       state.isLoaded = true;

@@ -21,7 +21,6 @@ const Dashboard = () => {
       return res.data;
     },
   });
-  console.log("stats", stats);
 
   const { data: logs, isLoading: logsLoading } = useQuery({
     queryKey: ["adminLogs"],
@@ -30,7 +29,6 @@ const Dashboard = () => {
       return res.data;
     },
   });
-  console.log("logs", logs);
 
   const { data, isLoading } = useQuery({
     queryKey: ["adminModerationActivity"],
@@ -102,39 +100,39 @@ const Dashboard = () => {
           </div>
           <div className="divide-y divide-slate-100">
             {activities.filter((lesson) => lesson.status !== "published")
-            .map((lesson) => (
-              <div
-                key={lesson._id}
-                className="p-6 hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
+              .map((lesson) => (
+                <div
+                  key={lesson._id}
+                  className="p-6 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
 
-                    <p className="text-xs text-slate-500">
-                      {lesson.title} · {lesson.course?.title}
-                    </p>
-
-                    {lesson.moderationResult && (
-                      <p className="text-xs text-red-500 italic">
-                        {lesson.moderationResult?.risk_level} · {lesson.status }
+                      <p className="text-xs text-slate-500">
+                        {lesson.title} · {lesson.course?.title}
                       </p>
-                    )}
-                  </div>
 
-                  <div className="text-right">
-                    <p className="text-xs text-slate-400">
-                      {new Date(lesson.updatedAt).toLocaleDateString()}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {new Date(lesson.updatedAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                      {lesson.moderationResult && (
+                        <p className="text-xs text-red-500 italic">
+                          {lesson.moderationResult?.risk_level} · {lesson.status}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-xs text-slate-400">
+                        {new Date(lesson.updatedAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {new Date(lesson.updatedAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
             {activities.length === 0 && (
               <div className="p-12 text-center text-slate-400">

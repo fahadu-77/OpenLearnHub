@@ -34,7 +34,7 @@ const CategoryCoursesPage = () => {
       </div>
     );
   }
-  console.log(courses, error);
+
   if (error || !courses) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -79,21 +79,19 @@ const CategoryCoursesPage = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === "grid"
+                className={`p-2 rounded-lg transition-colors ${viewMode === "grid"
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <Grid className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === "list"
+                className={`p-2 rounded-lg transition-colors ${viewMode === "list"
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <List className="w-5 h-5" />
               </button>

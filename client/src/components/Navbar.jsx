@@ -23,9 +23,9 @@ export const Navbar = () => {
           {/* Logo */}
           <Link
             to={user?.role === "admin" ? "/admin/dashboard" : "/"}
-            className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition-colors"
+            className="flex items-center"
           >
-            OpenLearnHub
+            <img src="/logo-full.svg" alt="OpenLearnHub" className="h-8" />
           </Link>
 
           {/* Desktop Menu */}
@@ -202,6 +202,6 @@ export const Navbar = () => {
           </div>
         )}
       </div>
-    </nav>
+    </nav >
   );
 };

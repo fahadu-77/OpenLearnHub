@@ -24,12 +24,10 @@ const Instructors = () => {
     });
 
     const instructors = users?.filter(user => user.role === 'instructor') || [];
-console.log("instructors", instructors);
     const instructorsWithStats = instructors.map(instructor => {
         const instructorCourses = courses?.filter(c => c.instructor?._id === instructor._id) || [];
         const totalStudents = instructorCourses.reduce((acc, curr) => acc + (curr.enrolledStudents?.length || 0), 0);
         const totalRevenue = instructorCourses.reduce((acc, curr) => acc + ((curr.enrolledStudents?.length || 0) * curr.price), 0);
-        console.log("log", instructorCourses);   
 
         return {
             ...instructor,

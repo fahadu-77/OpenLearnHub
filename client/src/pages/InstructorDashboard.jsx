@@ -22,7 +22,6 @@ import { Link } from "react-router-dom";
 
 const InstructorDashboard = () => {
   const { user } = useSelector((state) => state.auth);
-  console.log(user);
 
   // Fetch Instructor's Courses
   const { data: courses, isLoading: coursesLoading } = useQuery({
@@ -54,12 +53,9 @@ const InstructorDashboard = () => {
       (acc, c) => acc + (c.enrolledStudents?.length || 0) * c.price,
       0,
     ) || 0;
-  console.log("courses", courses, totalRevenue, totalEnrollments, totalCourses);
   // Derived from lessons status
   const pendingReviews =
     data?.filter(lesson => lesson.status === 'pending_review' || lesson.status === 'blocked').length || 0;
-
-  console.log("pendingReviews", pendingReviews, courses);
   // Stat Cards Configuration
   const stats = [
     {
@@ -126,7 +122,6 @@ const InstructorDashboard = () => {
         );
     }
   };
-  console.log(courses);
   if (coursesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">

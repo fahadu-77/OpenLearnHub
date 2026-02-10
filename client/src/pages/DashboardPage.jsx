@@ -73,16 +73,17 @@ const DashboardPage = () => {
             };
         });
 
-        // Find hero course: One with lastWatched, or the first "in progress" one, or the most recent enrolled
-        const heroCourse = enrolledWithProgress.find(c => c.lastWatched) ||
-            enrolledWithProgress.find(c => c.status === 'in progress') ||
-            enrolledWithProgress[0];
+        // Find hero course: Prioritize the most recently enrolled/active course (search from end)
+        const reversedEnrolled = [...enrolledWithProgress].reverse();
+        const heroCourse = reversedEnrolled.find(c => c.lastWatched) ||
+            reversedEnrolled.find(c => c.status === 'in progress') ||
+            reversedEnrolled[0];
 
         // Recommendations: same categories as enrolled, excluding already enrolled
         const enrolledCategories = [...new Set(user.enrolledCourses.map(c => c.category))];
         const enrolledIds = user.enrolledCourses.map(c => c._id);
         const recommended = allCourses
-            .filter(c => enrolledCategories.includes(c.category) && !enrolledIds.includes(c._id)&& c.lessons?.length > 0)
+            .filter(c => enrolledCategories.includes(c.category) && !enrolledIds.includes(c._id) && c.lessons?.length > 0)
             .slice(0, 4);
 
         // Learning Summary
@@ -129,7 +130,6 @@ const DashboardPage = () => {
     if (!processedData) return null;
 
     const { enrolledWithProgress, heroCourse, recommended, summary } = processedData;
-
     const filteredCourses = enrolledWithProgress.filter(c => {
         if (filterStatus === 'all') return true;
         return c.status === filterStatus;

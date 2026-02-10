@@ -18,6 +18,16 @@ function App() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  useEffect(() => {
+    // Remove the loading class after a delay to show the splash effect
+    const timer = setTimeout(() => {
+      document.body.classList.remove('app-loading');
+    }, 2000); // 2 seconds splash
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
 

@@ -25,7 +25,7 @@ export const Navbar = () => {
             to={user?.role === "admin" ? "/admin/dashboard" : "/"}
             className="flex items-center"
           >
-            <img src="/logo-full.svg" alt="OpenLearnHub" className="h-8" />
+            <img src="/logo-full.svg" alt="OpenLearnHub" className="h-8 transition-opacity duration-300" id="navbar-logo" />
           </Link>
 
           {/* Desktop Menu */}

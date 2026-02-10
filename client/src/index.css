@@ -12,9 +12,57 @@
 }
 
 @layer components {
-  .form-focus {
-    @apply focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none;
-  }
+    .form-focus {
+        @apply focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none;
+    }
+}
+
+/* Splash Screen / App Loading Styles */
+body.app-loading {
+    overflow: hidden;
+    /* Prevent scrolling during splash */
+}
+
+/* 1. The Overlay Background */
+body.app-loading::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    z-index: 9998;
+    /* Below logo, above everything else */
+    transition: opacity 0.5s ease-out;
+}
+
+/* 2. The Logo Positioning */
+/* When app-loading is present, pull the navbar logo out of flow and center it */
+body.app-loading #navbar-logo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
+    z-index: 9999;
+    width: auto;
+    height: 4rem;
+    /* Specific height for splash impact */
+}
+
+/* Transition for the Logo when class is removed */
+#navbar-logo {
+    /* Define the transition properties for when it snaps back to static */
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Elegant ease-out */
+    /* Note: Animating from fixed to static isn't smooth in CSS. */
+    /* However, since we are removing the class, the 'fixed' property is removed. */
+    /* To make it smooth, we would ideally need to approximate the start/end or use a flip technique. */
+    /* But for "CSS-only loading class" request, typically a fade or snap is expected unless complex. */
+    /* We will stick to the plan: The "pop" or "snap" might happen, but usually users accept a cross-fade. */
+    /* Actually, a common trick is to transform it to the top-left before removing 'fixed'? No, that requires JS step. */
+    /* We will proceed with this. If the user wants a smooth "move", we'd need that JS Animation component back. */
+    /* But simple scaling down is often enough. */
 }
 
 /* Custom Animations */
@@ -88,9 +136,9 @@ html {
 }
 
 :focus {
-  outline: none;
+    outline: none;
 }
 
 :focus-visible {
-  outline: none;
+    outline: none;
 }
